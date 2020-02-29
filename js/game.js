@@ -14,41 +14,50 @@ game.vakanen.midpoint_x = game.vakanen.start_x +
 game.vakanen.midpoint_y = game.vakanen.start_y +
   (game.vakanen.height - game.vakanen.thickness + game.vakanen.height) * 0.5;
 game.vakanen.color = "#FFFFFF";
+game.vakanen.current_rotation_deg = 0;
 
-document.addEventListener('DOMContentLoaded', function() {
-    drawVakanen(game.vakanen.color);
-    drawFunction = function() {
-      drawVakanen("#000000");
-    };
-    for (i = 1; i <= 7; i++) {
-      drawRotatedVakanen(drawFunction, i * 45);
-    }
-}, false);
+document.addEventListener("DOMContentLoaded", start, false);
 
-function draw() {
-    game.ctx.clearRect(0, 0, pong.canvas.width, pong.canvas.height);
-    drawBall(pong.ctx, pong.state.ball.x, pong.state.ball.y, pong.constants.ballRadius, pong.constants.color);
-    drawPaddle(pong.ctx, pong.state.paddle1.x, pong.state.paddle1.y, pong.constants.paddleHeight, pong.constants.paddleWidth, pong.constants.color);
-    drawPaddle(pong.ctx, pong.state.paddle2.x, pong.state.paddle2.y, pong.constants.paddleHeight, pong.constants.paddleWidth, pong.constants.color);
-    checkCollisions();
-    updateBallLocation();
-    updatePaddleLocation(pong.state.paddle1);
-    updatePaddleLocation(pong.state.paddle2);
+function start() {
+
+  setInterval(drawRotatedVakanen, 1);
 }
+
+function drawRotatedVakanen(drawFunction) {
+    drawFunction = function() {
+      drawVakanen(game.vakanen.color);
+    };
+    game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
+    drawRotated(drawFunction, game.vakanen.current_rotation_deg);
+    game.vakanen.current_rotation_deg += 0.5;
+    game.vakanen.current_rotation_deg = game.vakanen.current_rotation_deg % 360;
+}
+
 
 function drawVakanen(color) {
     game.ctx.fillStyle = color;
     game.ctx.fillRect(game.vakanen.start_x, game.vakanen.start_y,
              game.vakanen.thickness, game.vakanen.height);
-    game.ctx.fillRect(game.vakanen.start_x + game.vakanen.thickness,
+    game.ctx.fillRect(game.vakanen.start_x + game.vakanen.thickness - 1,
              game.vakanen.start_y + game.vakanen.height - game.vakanen.thickness,
              game.vakanen.width,
              game.vakanen.thickness);
 }
 
-function drawRotatedVakanen(drawFunction, rotation_deg) {
-  game.ctx.translate(game.vakanen.midpoint_x, game.vakanen.midpoint_y );
-  game.ctx.rotate((rotation_deg / 180) * Math.PI);
-  game.ctx.translate(-game.vakanen.midpoint_x, -game.vakanen.midpoint_y );
+function drawRotated(drawFunction, rotation_deg) {
+  doRotation(rotation_deg, game.vakanen.midpoint_x, game.vakanen.midpoint_y);
   drawFunction();
+  cleanupRotation(rotation_deg, game.vakanen.midpoint_x, game.vakanen.midpoint_y);
+}
+
+function doRotation(rotation_deg, midpoint_x, midpoint_y) {
+  game.ctx.translate(midpoint_x, midpoint_y );
+  game.ctx.rotate((rotation_deg / 180) * Math.PI);
+  game.ctx.translate(-midpoint_x, -midpoint_y );
+}
+
+function cleanupRotation(rotation_deg, midpoint_x, midpoint_y) {
+  game.ctx.translate(midpoint_x, midpoint_y );
+  game.ctx.rotate(-(rotation_deg / 180) * Math.PI);
+  game.ctx.translate(-midpoint_x, -midpoint_y );
 }
