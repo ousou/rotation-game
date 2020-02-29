@@ -1,0 +1,26 @@
+#rotationCanvas {
+    background: #0072E4;
+    display: block;
+    margin: 0 auto;
+    margin-top: 5%;
+}
+
+.title {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.settings {
+    padding-top: 20px;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.info {
+    padding-top: 20px;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
