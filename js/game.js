@@ -17,12 +17,12 @@ game.vakanen.color = "#FFFFFF";
 game.vakanen.current_rotation_deg = 0;
 
 game.state = {};
-game.state.mouse_down = false;
+game.state.mouse_down_inside = false;
 
 document.addEventListener("DOMContentLoaded", startAnimation, false);
 
 function startAnimation() {
-    game.vakanen.start_animation_interval = setInterval(drawRotatedVakanen, 1);
+    game.vakanen.start_animation_interval = setInterval(drawIntroRotatedVakanen, 1);
 }
 
 function startGame() {
@@ -41,6 +41,7 @@ function startGame() {
 
     game.canvas.onmousedown = checkMouseDown;
     game.canvas.onmousemove = checkMouseMove;
+    game.canvas.onmouseup = checkMouseUp;
 }
 
 function getCoordinates(e) {
@@ -55,35 +56,58 @@ function checkMouseDown(e) {
     console.log("x " + x);
     console.log("y " + y);
     if (isInsideVakanen(coords[0], coords[1])) {
-        alert("Is inside!");
         game.state.mouse_down_inside = true;
     } else {
         game.state.mouse_down_inside = false;
     }
 }
 
+function checkMouseUp(e) {
+    game.state.mouse_down_inside = false;
+}
+
 function checkMouseMove(e) {
-    if (game.state.mouse_down_inside === false) {
+    if (game.state.mouse_down_inside == false) {
         return;
     }
     coords = getCoordinates(e);
     x = coords[0];
     y = coords[1];
-
+    rotation_deg = calculateRotationDeg(x, y);
+    console.log("rotation_deg " + rotation_deg);
+    console.log("Drawing!");
+    game.vakanen.current_rotation_deg = rotation_deg;
+    drawRotatedVakanen();
 }
 
 function calculateRotationDeg(x, y) {
-    if (y == game.vakanen.midpoint_y) {
+    x_rel = x - game.vakanen.midpoint_x;
+    y_rel = y - game.vakanen.midpoint_y;
+    console.log("x_rel " + x_rel);
+    console.log("y_rel " + y_rel);
+    if (y_rel == 0) {
         return 0;
     }
+    rotation_rad = Math.atan(y_rel / x_rel);
+    rotation_deg = (rotation_rad * 180) / Math.PI;
+    if (x_rel < 0) {
+        rotation_deg += 180;
+    } else if (x_rel > 0 && y_rel < 0) {
+        rotation_deg += 360;
+    }
+    return rotation_deg;
 }
 
-function drawRotatedVakanen(drawFunction) {
+function drawRotatedVakanen() {
     drawFunction = function() {
       drawVakanen(game.vakanen.color);
     };
     game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
     drawRotated(drawFunction, game.vakanen.current_rotation_deg);
+}
+
+function drawIntroRotatedVakanen() {
+    drawRotatedVakanen();
     game.vakanen.current_rotation_deg += 0.5;
     game.vakanen.current_rotation_deg = game.vakanen.current_rotation_deg % 360;
 }
