@@ -16,8 +16,13 @@ game.vakanen.midpoint_y = game.vakanen.start_y +
 game.vakanen.color = "#FFFFFF";
 game.vakanen.current_rotation_deg = 0;
 
+game.constants = {};
+game.constants.friction = 0.95;
+
 game.state = {};
 game.state.mouse_down_inside = false;
+game.state.hit_done = false;
+
 
 document.addEventListener("DOMContentLoaded", startAnimation, false);
 
@@ -42,6 +47,9 @@ function startGame() {
     game.canvas.onmousedown = checkMouseDown;
     game.canvas.onmousemove = checkMouseMove;
     game.canvas.onmouseup = checkMouseUp;
+}
+
+function monitorHit() {
 }
 
 function getCoordinates(e) {
@@ -69,7 +77,27 @@ function checkMouseDown(e) {
 }
 
 function checkMouseUp(e) {
+    if (game.state.hit_done === true) return;
+    game.state.hit_done = true;
     game.state.mouse_down_inside = false;
+    speed = game.state.mouse_current_y - game.state.mouse_prev_y;
+    console.log("speed " + speed);
+    setTimeout(function() {animateHit(speed);}, 10);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function animateHit(speed) {
+    movement = speed * 0.5;
+    while (Math.abs(movement) > 0.1) {
+        game.vakanen.current_rotation_deg += movement;
+        drawRotatedVakanen();
+        movement *= game.constants.friction;
+        await sleep(15);
+    }
+    game.state.hit_done = false;
 }
 
 function checkMouseMove(e) {
@@ -83,6 +111,10 @@ function checkMouseMove(e) {
     console.log("rotation_deg " + rotation_deg);
     // console.log("Drawing!");
     game.vakanen.current_rotation_deg = rotation_deg;
+    game.state.mouse_prev_x = game.state.mouse_current_x;
+    game.state.mouse_prev_y = game.state.mouse_current_y;
+    game.state.mouse_current_x = coords[0];
+    game.state.mouse_current_y = coords[1];
     drawRotatedVakanen();
 }
 
