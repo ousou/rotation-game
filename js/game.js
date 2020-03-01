@@ -57,6 +57,12 @@ function checkMouseDown(e) {
     console.log("y " + y);
     if (isInsideVakanen(coords[0], coords[1])) {
         game.state.mouse_down_inside = true;
+        game.state.mouse_down_orig_x = coords[0];
+        game.state.mouse_down_orig_y = coords[1];
+        game.state.mouse_down_orig_rotation = game.vakanen.current_rotation_deg;
+        console.log("game.state.mouse_down_orig_x " + game.state.mouse_down_orig_x);
+        console.log("game.state.mouse_down_orig_y " + game.state.mouse_down_orig_y);
+        console.log("game.state.mouse_down_orig_rotation " + game.state.mouse_down_orig_rotation);
     } else {
         game.state.mouse_down_inside = false;
     }
@@ -75,7 +81,7 @@ function checkMouseMove(e) {
     y = coords[1];
     rotation_deg = calculateRotationDeg(x, y);
     console.log("rotation_deg " + rotation_deg);
-    console.log("Drawing!");
+    // console.log("Drawing!");
     game.vakanen.current_rotation_deg = rotation_deg;
     drawRotatedVakanen();
 }
@@ -83,8 +89,8 @@ function checkMouseMove(e) {
 function calculateRotationDeg(x, y) {
     x_rel = x - game.vakanen.midpoint_x;
     y_rel = y - game.vakanen.midpoint_y;
-    console.log("x_rel " + x_rel);
-    console.log("y_rel " + y_rel);
+    // console.log("x_rel " + x_rel);
+    // console.log("y_rel " + y_rel);
     if (y_rel == 0) {
         return 0;
     }
@@ -95,7 +101,16 @@ function calculateRotationDeg(x, y) {
     } else if (x_rel > 0 && y_rel < 0) {
         rotation_deg += 360;
     }
-    return rotation_deg;
+    if (game.state.mouse_down_orig_x < game.vakanen.midpoint_x &&
+      (game.state.mouse_down_orig_rotation < 90 || game.state.mouse_down_orig_rotation > 270)) {
+        rotation_deg += 180;
+    }
+
+    // if (game.state.mouse_down_orig_x > game.vakanen.midpoint_x &&
+    //  (90 < game.state.mouse_down_orig_rotation < 270)) {
+    //    rotation_deg -= 180;
+    // }
+    return rotation_deg % 360;
 }
 
 function drawRotatedVakanen() {
