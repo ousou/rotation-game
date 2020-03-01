@@ -16,11 +16,22 @@ game.vakanen.midpoint_y = game.vakanen.start_y +
 game.vakanen.color = "#FFFFFF";
 game.vakanen.current_rotation_deg = 0;
 
-document.addEventListener("DOMContentLoaded", start, false);
+document.addEventListener("DOMContentLoaded", startAnimation, false);
 
-function start() {
+function startAnimation() {
+    game.vakanen.start_animation_interval = setInterval(drawRotatedVakanen, 1);
+}
 
-  setInterval(drawRotatedVakanen, 1);
+function startGame() {
+    clearInterval(game.vakanen.start_animation_interval);
+    game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
+    drawVakanen(game.vakanen.color);
+    game.vakanen.current_rotation_deg = 0;
+    var info = document.getElementsByClassName("info");
+
+    for (var i = 0; i < info.length; i ++) {
+        info[i].style.visibility = "visible";
+    }
 }
 
 function drawRotatedVakanen(drawFunction) {
