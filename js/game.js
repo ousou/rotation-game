@@ -16,6 +16,9 @@ game.vakanen.midpoint_y = game.vakanen.start_y +
 game.vakanen.color = "#FFFFFF";
 game.vakanen.current_rotation_deg = 0;
 
+game.state = {};
+game.state.mouse_down = false;
+
 document.addEventListener("DOMContentLoaded", startAnimation, false);
 
 function startAnimation() {
@@ -25,12 +28,53 @@ function startAnimation() {
 function startGame() {
     clearInterval(game.vakanen.start_animation_interval);
     game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-    drawVakanen(game.vakanen.color);
+    drawFunction = function() {
+      drawVakanen(game.vakanen.color);
+    };
     game.vakanen.current_rotation_deg = 0;
+    drawRotated(drawFunction, game.vakanen.current_rotation_deg);
     var info = document.getElementsByClassName("info");
 
     for (var i = 0; i < info.length; i ++) {
         info[i].style.visibility = "visible";
+    }
+
+    game.canvas.onmousedown = checkMouseDown;
+    game.canvas.onmousemove = checkMouseMove;
+}
+
+function getCoordinates(e) {
+    var rect = game.ctx.canvas.getBoundingClientRect();
+    x = e.x - rect.left;
+    y = e.y - rect.top;
+    return [x, y];
+}
+
+function checkMouseDown(e) {
+    coords = getCoordinates(e);
+    console.log("x " + x);
+    console.log("y " + y);
+    if (isInsideVakanen(coords[0], coords[1])) {
+        alert("Is inside!");
+        game.state.mouse_down_inside = true;
+    } else {
+        game.state.mouse_down_inside = false;
+    }
+}
+
+function checkMouseMove(e) {
+    if (game.state.mouse_down_inside === false) {
+        return;
+    }
+    coords = getCoordinates(e);
+    x = coords[0];
+    y = coords[1];
+
+}
+
+function calculateRotationDeg(x, y) {
+    if (y == game.vakanen.midpoint_y) {
+        return 0;
     }
 }
 
@@ -44,7 +88,6 @@ function drawRotatedVakanen(drawFunction) {
     game.vakanen.current_rotation_deg = game.vakanen.current_rotation_deg % 360;
 }
 
-
 function drawVakanen(color) {
     game.ctx.fillStyle = color;
     game.ctx.fillRect(game.vakanen.start_x, game.vakanen.start_y,
@@ -53,6 +96,25 @@ function drawVakanen(color) {
              game.vakanen.start_y + game.vakanen.height - game.vakanen.thickness,
              game.vakanen.width,
              game.vakanen.thickness);
+}
+
+function isInsideVakanen(x, y) {
+    doRotation(game.vakanen.current_rotation_deg,
+      game.vakanen.midpoint_x, game.vakanen.midpoint_y);
+    game.ctx.beginPath();
+    game.ctx.rect(game.vakanen.start_x, game.vakanen.start_y,
+             game.vakanen.thickness, game.vakanen.height);
+    game.ctx.rect(game.vakanen.start_x + game.vakanen.thickness - 1,
+             game.vakanen.start_y + game.vakanen.height - game.vakanen.thickness,
+             game.vakanen.width,
+             game.vakanen.thickness);
+    var isInside = false;
+    if (game.ctx.isPointInPath(x,y)) {
+        isInside = true;
+    }
+    cleanupRotation(game.vakanen.current_rotation_deg,
+      game.vakanen.midpoint_x, game.vakanen.midpoint_y);
+    return isInside;
 }
 
 function drawRotated(drawFunction, rotation_deg) {
