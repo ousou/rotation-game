@@ -19,9 +19,36 @@
 }
 
 .info {
-    padding-top: 20px;
+    padding-top: 5px;
     display: block;
     margin: 0 auto;
     text-align: center;
     visibility: hidden;
+    font-size: 150%;
+}
+
+.score {
+    font-size: 200%;
+    visibility: hidden;
+}
+
+button {
+  background: #ededed;
+  border: 1px solid #ccc;
+  padding: 10px 30px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 150%;
+}
+
+button:active {
+  background: #e5e5e5;
+  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+     -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+          box-shadow: inset 0px 0px 5px #c1c1c1;
+   outline: none;
+}
+
+#tryAgain {
+  visibility:hidden;
 }

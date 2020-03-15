@@ -17,12 +17,14 @@ game.vakanen.color = "#FFFFFF";
 game.vakanen.current_rotation_deg = 0;
 
 game.constants = {};
-game.constants.friction = 0.95;
+game.constants.friction = 0.96;
 game.constants.update_delay_ms = 15;
 
 game.state = {};
 game.state.mouse_down_inside = false;
 game.state.hit_done = false;
+game.state.score = 0;
+game.state.high_score = 0;
 
 
 document.addEventListener("DOMContentLoaded", startAnimation, false);
@@ -46,9 +48,19 @@ function startGame() {
         info[i].style.visibility = "visible";
     }
 
+    document.getElementById("start").innerText = "Try again!";
+    document.getElementById("start").disabled = true;
+
+    var score = document.getElementsByClassName("score");
+
+    for (var i = 0; i < score.length; i ++) {
+        score[i].style.visibility = "visible";
+    }
+
     game.canvas.onmousedown = checkMouseDown;
     game.canvas.onmousemove = checkMouseMove;
     game.canvas.onmouseup = checkMouseUp;
+    updateScore(0, 0);
 }
 
 function monitorHit() {
@@ -83,7 +95,7 @@ function checkMouseUp(e) {
     game.state.hit_done = true;
     game.state.mouse_down_inside = false;
     speed = game.state.mouse_current_y - game.state.mouse_prev_y;
-    console.log("speed " + speed);
+    game.state.release_deg = game.vakanen.current_rotation_deg;
     setTimeout(function() {animateHit(speed);}, 10);
 }
 
@@ -93,13 +105,28 @@ function sleep(ms) {
 
 async function animateHit(speed) {
     movement = speed * 0.5;
+    console.log("rotation_deg " + game.vakanen.current_rotation_deg);
     while (Math.abs(movement) > 0.1) {
         game.vakanen.current_rotation_deg += movement;
         drawRotatedVakanen();
         movement *= game.constants.friction;
+        updateScore(game.vakanen.current_rotation_deg, game.state.release_deg);
         await sleep(game.constants.update_delay_ms);
     }
     game.state.hit_done = false;
+    console.log("rotation_deg " + game.vakanen.current_rotation_deg);
+    document.getElementById("start").disabled = false;
+    if (game.state.score > game.state.high_score) {
+      game.state.high_score = game.state.score;
+      document.getElementById("highScoreShower").innerHTML = "High score: " + game.state.high_score;
+    }
+}
+
+function updateScore(rotation_deg, original_deg) {
+    score = Math.abs(rotation_deg - original_deg) / 360;
+    score = score.toFixed(2);
+    game.state.score = score;
+    document.getElementById("scoreShower").innerHTML = "Score: " + score;
 }
 
 function checkMouseMove(e) {
