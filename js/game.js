@@ -18,6 +18,7 @@ game.vakanen.current_rotation_deg = 0;
 
 game.constants = {};
 game.constants.friction = 0.95;
+game.constants.update_delay_ms = 15;
 
 game.state = {};
 game.state.mouse_down_inside = false;
@@ -27,7 +28,8 @@ game.state.hit_done = false;
 document.addEventListener("DOMContentLoaded", startAnimation, false);
 
 function startAnimation() {
-    game.vakanen.start_animation_interval = setInterval(drawIntroRotatedVakanen, 1);
+    game.vakanen.start_animation_interval = setInterval(drawIntroRotatedVakanen,
+      game.constants.update_delay_ms);
 }
 
 function startGame() {
@@ -95,7 +97,7 @@ async function animateHit(speed) {
         game.vakanen.current_rotation_deg += movement;
         drawRotatedVakanen();
         movement *= game.constants.friction;
-        await sleep(15);
+        await sleep(game.constants.update_delay_ms);
     }
     game.state.hit_done = false;
 }
@@ -155,7 +157,7 @@ function drawRotatedVakanen() {
 
 function drawIntroRotatedVakanen() {
     drawRotatedVakanen();
-    game.vakanen.current_rotation_deg += 0.5;
+    game.vakanen.current_rotation_deg += 2;
     game.vakanen.current_rotation_deg = game.vakanen.current_rotation_deg % 360;
 }
 
