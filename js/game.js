@@ -32,6 +32,11 @@ document.addEventListener("DOMContentLoaded", startAnimation, false);
 function startAnimation() {
     game.vakanen.start_animation_interval = setInterval(drawIntroRotatedVakanen,
       game.constants.update_delay_ms);
+    var highScore = localStorage.getItem("rotation_game.high_score");
+    if (highScore !== null) {
+      game.state.high_score = JSON.parse(highScore);
+      document.getElementById("highScoreShower").innerHTML = "High score: " + game.state.high_score;
+    }
 }
 
 function startGame() {
@@ -119,6 +124,8 @@ async function animateHit(speed) {
     if (game.state.score > game.state.high_score) {
       game.state.high_score = game.state.score;
       document.getElementById("highScoreShower").innerHTML = "High score: " + game.state.high_score;
+      localStorage.setItem("rotation_game.high_score", JSON.stringify(game.state.high_score));
+
     }
 }
 
